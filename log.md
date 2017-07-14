@@ -1,6 +1,6 @@
-#日志
+# 日志
 
-###2017.7.14 17:55
+### 2017.7.14 17:55
   并没有看懂如何加载dll文件。其中如下
 	#include "include/gmp.h"
 	#pragma comment (lib , "bin/libgmp-6.1.1.lib")
