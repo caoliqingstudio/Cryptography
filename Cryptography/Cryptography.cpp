@@ -1,11 +1,37 @@
 // Cryptography.cpp : 定义控制台应用程序的入口点。
 //
-
+//这里是spn部分
 #include "stdafx.h"
-
+#include "myspn.h"
 
 int main()
 {
-    return 0;
+	int keyType;
+	char plaintext[10];
+	char keyString[10];
+	MySPN test;
+	unsigned short keyNum;
+	do {
+		std::cout << "请输入密钥格式：\n16进制表示请输入1\n十进制数字表示请输入0\n" << std::endl;
+		std::cin >> keyType;
+		std::cout << "请按照您确定的格式输入密钥（二进制32位）(16进制请不要输入0x)\n"
+			<<"16进制请按照地址顺序输入（类小端格式，与地址顺序相同） "<< std::endl;
+		if (keyType == 1) {
+			std::cin >> keyString;
+			test.setKey(keyString);
+			break;
+		}else if(keyType==0){
+			std::cin >> keyNum;
+			test.setKey(keyNum);
+			break;
+		}else {
+			std::cout << "请按要求输入0/1" << std::endl;
+			continue;
+		}
+	} while (true);//如果输错选项就循环执行
+	std::cout << "请输入16进制明文（二进制长度为16位）\n" << std::endl;
+	std::cin >> plaintext;//没有对类型进行检测，应该有的，但是为了减少运行时间
+	std::cout << "密文： " << std::hex << test.encrypt16(plaintext) << std::endl;
+	return 0;
 }
 
