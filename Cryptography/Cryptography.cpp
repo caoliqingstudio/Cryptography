@@ -4,10 +4,14 @@
 #include "stdafx.h"
 #include "myspn.h"
 
-int main()
+int main() {
+	return 0;
+}
+
+int spn()
 {
 	int keyType;
-	char plaintext[10];
+	unsigned char plaintext[10];
 	char keyString[10];
 	MySPN test;
 	unsigned short keyNum;
@@ -31,7 +35,11 @@ int main()
 	} while (true);//如果输错选项就循环执行
 	std::cout << "请输入16进制明文（二进制长度为16位）\n" << std::endl;
 	std::cin >> plaintext;//没有对类型进行检测，应该有的，但是为了减少运行时间
-	std::cout << "密文： " << std::hex << test.encrypt16(plaintext) << std::endl;
+	test.encrypt16(plaintext);
+	std::cout << "密文： " << std::hex << (int)test.crytext[0] 
+		<<(int) test.crytext[1] << (int)test.crytext[2] 
+		<< (int)test.crytext[3] << std::endl;
+	system("pause");//看结果的
 	return 0;
 }
 
