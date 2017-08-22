@@ -8,6 +8,24 @@ int main() {
 	return 0;
 }
 
+int test_spn_01() {
+	char input[20];
+	char keyinput[50];
+	for (int i = 0; i < 32; i++)
+	{
+		std::cin >> keyinput[i];
+	}
+	MySPN test;
+	test.setKey_01(keyinput);
+	std::cout << "key ok" << std::endl;
+	for (int i = 0; i < 16; i++)
+	{
+		std::cin >> input[i];
+	}
+	std::cout << test.encrypt16_01(input) << std::endl;
+	return 0;
+}
+
 int spn()
 {
 	int keyType;

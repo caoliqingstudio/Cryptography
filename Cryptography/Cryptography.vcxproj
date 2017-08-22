@@ -145,12 +145,17 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cryptanalysis.h" />
+    <ClInclude Include="gmp.h" />
+    <ClInclude Include="MyRSA.h" />
     <ClInclude Include="myspn.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="cryptanalysis.cpp" />
     <ClCompile Include="Cryptography.cpp" />
+    <ClCompile Include="MyRSA.cpp" />
     <ClCompile Include="myspn.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

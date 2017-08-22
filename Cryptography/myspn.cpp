@@ -94,6 +94,44 @@ unsigned char* MySPN::encrypt16(unsigned char * plaintext_c) {
 	return encrypt16_hex(plaintext);
 }
 
+//仅为 查分 线性分析而用
+void MySPN::setKey_01(char * key)
+{
+	unsigned long keynum = 0;
+	unsigned long temp = 1;
+	for (int i = 0; i < 32; ++i) {
+		keynum = keynum | (key[i] == '0' ? 0 : temp);
+		temp *= 2;
+	}
+	setKey(keynum);
+}
+
+//仅为 查分 线性分析而用
+char * MySPN::encrypt16_01(char * plaintext_01)
+{
+	for (int i = 0; i < 4; i++)
+	{
+		plaintext[i] = (plaintext_01[i * 4] == '0' ? 0 : 1);
+		plaintext[i] += (plaintext_01[i * 4 + 1] == '0' ? 0 : 2);
+		plaintext[i] += (plaintext_01[i * 4 + 2] == '0' ? 0 : 4);
+		plaintext[i] += (plaintext_01[i * 4 + 3] == '0' ? 0 : 8);
+	}
+	encrypt16_hex(plaintext);
+	for (int i = 0; i < 4; i++)
+	{
+		crytext_01[i * 4 + 0] = ((crytext[i] & 0x01) != 0 ? 1 : 0);
+		crytext_01[i * 4 + 1] = ((crytext[i] & 0x02) != 0 ? 1 : 0);
+		crytext_01[i * 4 + 2] = ((crytext[i] & 0x04) != 0 ? 1 : 0);
+		crytext_01[i * 4 + 3] = ((crytext[i] & 0x08) != 0 ? 1 : 0);
+/*		crytext_01[i * 4 + 0] = ((crytext[i] & 0x01) != 0 ? '1' : '0');//方便看，所以弄成字符
+		crytext_01[i * 4 + 1] = ((crytext[i] & 0x02) != 0 ? '1' : '0');
+		crytext_01[i * 4 + 2] = ((crytext[i] & 0x04) != 0 ? '1' : '0');
+		crytext_01[i * 4 + 3] = ((crytext[i] & 0x08) != 0 ? '1' : '0');*/
+	}
+	crytext_01[16] = '\0';
+	return crytext_01;
+}
+
 unsigned char* MySPN::encrypt16_hex(unsigned char * plaintext_c)
 {
 	crytext[0] = plaintext_c[0];

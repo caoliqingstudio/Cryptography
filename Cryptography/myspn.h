@@ -16,6 +16,12 @@ unsigned char crytext[5];
 	密文，unsiigned char* encrypt16返回内容，crytext[4]='/0'，输出可能用到
 unsigned char plaintext[4];
 	明文，结构同crytext
+
+2017.8.21 为了线性和查分分析，特别添加以下两个接口
+void setKey_01(char *key); 
+	输入为 字符串字面的“010101”
+char * encrypt16_01(char *plaintext_01); 
+	输入为 字符串字面你的“010101”，输出为字符串数值的“\0\1\0\1\0\1”
 */
 #pragma once
 #include "stdafx.h"
@@ -30,11 +36,14 @@ public:
 	void setKey(unsigned long key);
 	unsigned short encrypt16(unsigned short plaintext_s);
 	unsigned char* encrypt16(unsigned char * plaintext_c);
-	~MySPN();
+	~MySPN();	//析构函数，用于释放内存
 	unsigned char crytext[5];
 	unsigned char plaintext[4];
-	//析构函数，用于释放内存
+	void setKey_01(char *key); //分析专用，01比特输入字符串
+	char * encrypt16_01(char *plaintext_01); //分析专用，01比特输入字符串
+
 private:
+	char crytext_01[17]; //分析专用，01比特字符串
 	unsigned char * encrypt16_hex(unsigned char * plaintext_c);
 	static void roundKeyCreat(LPVOID argu);//轮密钥生成，此处打算另开一个线程运行
 	inline char c2hc(char temp) {
