@@ -3,8 +3,11 @@
 //这里是spn部分
 #include "stdafx.h"
 #include "myspn.h"
+#include "MyRSA.h"
 
 int main() {
+	MyRSA test;
+	test.CreateKey();
 	return 0;
 }
 

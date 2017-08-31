@@ -5,6 +5,8 @@
 
 #pragma comment (lib , "libgmp-6.1.1.lib")
 
+#define SOLOVAY_STRASSEN_NUM 10 //ËØÐÔ¼ì²â´ÎÊý
+
 class  MyRSA
 {
 public:
@@ -12,7 +14,7 @@ public:
 	~ MyRSA();
 	void CreateKey();
 	void ClearKey();
-	mpz_t get_p();
+	void printKey();
 
 private:
 	mpz_t p, q, n, pub, pri;
