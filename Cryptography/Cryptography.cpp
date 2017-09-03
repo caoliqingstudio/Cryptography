@@ -5,9 +5,17 @@
 #include "myspn.h"
 #include "MyRSA.h"
 
+
 int main() {
 	MyRSA test;
+	clock_t start;
+	clock_t end;
+	start = clock();
 	test.CreateKey();
+	end = clock();
+	test.printKey();
+	std::cout << "\n\n" << end - start << std::endl;
+	system("pause");
 	return 0;
 }
 

@@ -1,4 +1,4 @@
-# 日志
+﻿# 日志
 
 ### 2017.7.14 17:55
   并没有看懂如何加载dll文件。其中如下
@@ -132,9 +132,47 @@
    课设方面，今天：
    
 * RSA 进一步写，生成p，q，n等但是素性检测生成私钥还没写
-* 学习GMP文档
+* 学习[GMP文档](https://gmplib.org/manual/Integer-Random-Numbers.html#Integer-Random-Numbers)
 * 没了
    
-   
+### 2017.9.3
+   之前几天忘了写日记了，，，，，就写今天的了       
+         
+   今天完成了RSA参数的生成，不过有几个问题：
+
+* 有部分gmp方法不知道允不允许用
+* 没验证准确性
+* 就是 哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈
+
+下面是我的RSA的函数
+
+	class  MyRSA
+	{
+	public:
+		 MyRSA();
+		~ MyRSA();
+		void CreateKey();
+		void ClearKey();
+		void printKey();
+
+	private:
+		mpz_t p, q, n, pub, pri;
+		bool ok;
+		gmp_randstate_t state;
+		struct arguement {
+			bool * ok;
+			gmp_randstate_t * state;
+			mpz_t *p;
+		}argue;
+		static bool isNotPrime(mpz_t &num);
+		bool relaPrime(mpz_t &a, mpz_t &b, mpz_t &c, bool state);
+		bool priCreat(mpz_t &a, mpz_t &b);
+		static void bigPrime(LPVOID argue);
+	};
+
+其中，本来是没有生成大素数的函数的，也没有创建新线程，但是测试的时候
+发现生成大素数需要的时间太长了，而且要生成两个，所以就新建了线程，时间
+从350左右降到了200左右，，而生成一个大素数就需要150左右。
+
 
    
