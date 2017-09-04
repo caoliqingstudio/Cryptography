@@ -54,6 +54,7 @@ void MyRSA::CreateKey()
 			mpz_setbit(pub, 0);	//设置为奇
 		} while (!relaPrime(pub, psub, qsub, true));
 	} while (!priCreat(pub, euler)); //如果 公约数非 1 则不互素
+	mpz_fdiv_r(pri, pri, euler);
 	//释放内存
 	mpz_clears(psub, qsub, euler, NULL);
 }

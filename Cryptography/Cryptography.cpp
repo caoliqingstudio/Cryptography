@@ -4,9 +4,49 @@
 #include "stdafx.h"
 #include "myspn.h"
 #include "MyRSA.h"
-
-
+int test_SPN_file();
+int test_decrypt_SPN();
 int main() {
+//	test_decrypt_SPN();
+//	test_SPN_file();
+	MySPN test;
+	test.setKey(0x70114090);
+	test.setKeyDecrypt(0x70114090);
+	test.encryptFile("D://first", "D://new");
+	test.decryptFile("D://new", "D://old");
+/*	unsigned short a=0;
+	std::cout << test.decrypt16(test.encrypt16(123), a) << std::endl;
+	*/system("pause");
+	return 0;
+}
+
+int test_SPN_file() {
+	MySPN test;
+	test.setKey(0x70114090);
+	test.setKeyDecrypt(0x70114090);
+	test.encryptFile("D://first", "D://new");
+	test.decryptFile("D://new", "D://old");
+	system("pause");
+	return 0;
+}
+
+int test_decrypt_SPN() {
+	MySPN test;
+	test.setKey(255);
+	test.setKeyDecrypt(255);
+	while (true) {
+		unsigned short text, aaa=0,bbb=0;
+		std::cin >> text;
+		aaa=test.encrypt16(text);
+		std::cout << "加密 密文" << std::endl;
+		std::cout << aaa << std::endl;
+		std::cout << "解密 明文" << std::endl;
+		std::cout << test.decrypt16(aaa,bbb)<< std::endl;
+	}
+	return 0;
+}
+
+int test_RSA_key() {
 	MyRSA test;
 	clock_t start;
 	clock_t end;
