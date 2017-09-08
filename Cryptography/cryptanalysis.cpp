@@ -239,22 +239,17 @@ bool Linear::creatFile(unsigned long key)
 
 Differential::Differential()
 {
-	An_key = NULL;
-	num = 0;
+	for (int i = 0; i < THREAD_NUM; i++)
+	{
+		threadArgue[i].num = 0;
+		threadArgue[i].state = false;
+	}
 	textNum = 0;
 	Diff_setKey = DIFF_SETKEY;
 }
 
 Differential::~Differential()
 {
-	struct keyStore *next1;
-	struct keyStore *next2;
-	next1 = An_key;
-	while (next1 != NULL) {
-		next2 = next1->next;
-		free(next1);
-		next1 = next2;
-	}
 }
 
 void Differential::analyse()
@@ -263,23 +258,28 @@ void Differential::analyse()
 	start = clock();
 	hex();
 	end = clock();
-	printf("%x %x %x %x\n", maxKey[4], maxKey[5], maxKey[6], maxKey[7]);
-	std::cout << "16位密钥时间" << end - start << std::endl;
+	printf("%x %x \n", maxKey[5], maxKey[7]);
+	std::cout << "8位密钥时间" << end - start << std::endl;
 	start = clock();
 	bigRun();
+	while (!threadArgue[THREAD_NUM-1].state);
 	end = clock();
 	std::cout << "暴力时间" << end - start << std::endl;
+
+	int num = 0;
+	for (int i = 0; i < THREAD_NUM; i++)
+	{
+		num += threadArgue[i].num;
+		for (int j = 0; j < threadArgue[i].num; ++j) {
+			printf("%x\n", threadArgue[i].key[j]);
+		}
+	}
 	if (num == 0)
 	{
 		std::cout << "fail to find key" << std::endl;
 		return;
 	}
 	printf("得到密钥数量为： %d\n", num);
-	struct keyStore *nextKey = An_key;
-	for (int i = 0; i < num; ++i) {
-		printf("%x\n", nextKey->key);
-		nextKey = nextKey->next;
-	}
 }
 
 inline void Differential::sboxDecrypt_4(char * input)
@@ -364,51 +364,58 @@ bool Differential::hex()
 
 bool Differential::bigRun()
 {
-	struct keyStore * storeKey;
-	An_key = (struct keyStore *)malloc(sizeof(struct keyStore));
-	An_key->next = NULL;
-	if (An_key == NULL)
-	{
-		std::cout << "溢出" << std::endl;
-		return false;
-	}
-	storeKey = An_key;
-	char key[4];
-	key[2] = ((maxKey[5] << 4) & 0xf0);
-	key[3] = ((maxKey[7] << 4) & 0xf0);
+	MySPN myspn;
 	unsigned short thisplaintext, thiscrytext;
 	unsigned short thisplaintext2, thiscrytext2;
 	thisplaintext = 0x1748;
 	thisplaintext2 = 0x7481;
-	MySPN myspn;
 	myspn.setKey(Diff_setKey);
 	thiscrytext = myspn.encrypt16(thisplaintext);
 	thiscrytext2 = myspn.encrypt16(thisplaintext2);
-	for (unsigned int i = 0; i <= 0xFFFFFF; ++i) {
-		//printf("%x\n", i);
-		char c = *(((unsigned char *)&i) + 2);
-		*((unsigned short *)key) = *((unsigned short *)&i);
-		key[2] = (key[2] & 0xf0) | ((c) & 0x0f);
-		key[3] = (key[3] & 0xf0) | ((c>>4) & 0x0f);
-		myspn.threadArgu.inputKey = *((unsigned long *)key);
-		myspn.roundKeyCreat((LPVOID)&myspn.threadArgu);
-		if (myspn.encrypt16(thisplaintext) == thiscrytext&&myspn.encrypt16(thisplaintext2) == thiscrytext2) {
-			++num;
-			//printf("找到第%d组 密钥", num);
-			storeKey->next = (struct keyStore *)malloc(sizeof(struct keyStore));
-			if (storeKey->next == NULL)
-			{
-				std::cout << "溢出" << std::endl;
-				return false;
-			}
-			storeKey->next->next = NULL;
-			storeKey->key = *((unsigned long *)key);
-			storeKey = storeKey->next;
-		}
+
+	for (int i = 0; i < THREAD_NUM; i++)
+	{
+		threadArgue[i].maxKey[5] = maxKey[5];
+		threadArgue[i].maxKey[7] = maxKey[7];
+		threadArgue[i].start = i * THREAD_MUL;
+		threadArgue[i].end = i * THREAD_MUL + THREAD_ADD;
+		threadArgue[i].thisplaintext = thisplaintext;
+		threadArgue[i].thiscrytext = thiscrytext;
+		threadArgue[i].thisplaintext2 = thisplaintext2;
+		threadArgue[i].thiscrytext2 = thiscrytext2;
+		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)bigRunThread, (LPVOID)&threadArgue[i], 0, NULL);
 	}
 	return true;
 }
 
 void Differential::bigRunThread(LPVOID argu)
 {
+	struct keyArgueDif * argument = (struct keyArgueDif *)argu;
+	
+	char key[4];
+	key[2] = ((argument->maxKey[5] << 4) & 0xf0);
+	key[3] = ((argument->maxKey[7] << 4) & 0xf0);
+
+	MySPN myspn;
+	for (unsigned int i = argument->start; i <= argument->end; ++i) {
+		//printf("%x\n", i);
+		char c = *(((unsigned char *)&i) + 2);
+		*((unsigned short *)key) = *((unsigned short *)&i);
+		key[2] = (key[2] & 0xf0) | ((c) & 0x0f);
+		key[3] = (key[3] & 0xf0) | ((c >> 4) & 0x0f);
+		myspn.threadArgu.inputKey = *((unsigned long *)key);
+		myspn.roundKeyCreat((LPVOID)&myspn.threadArgu);
+		if (myspn.encrypt16(argument->thisplaintext) == argument->thiscrytext
+			&&myspn.encrypt16(argument->thisplaintext2) == argument->thiscrytext2) {
+			//printf("找到第%d组 密钥", num);
+			if (argument->num > 4) {
+				printf("结果太多，溢出，范围%x到%x\n", i, argument->end);
+				argument->state = true;
+				return;
+			}
+			argument->key[argument->num++] = *((unsigned long *)key);
+		}
+	}
+	argument->state=true;
+	return;
 }

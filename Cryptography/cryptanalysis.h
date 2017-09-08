@@ -9,6 +9,9 @@
 #define LINEAR_SETKEY  0xab851257
 #define DIFF_SETKEY  0xab851257
 #define T_DIFF_NUM 1000
+#define THREAD_NUM 8
+#define THREAD_ADD 0x1fffff
+#define THREAD_MUL 0x200000
 //…Ë÷√µƒ√‹‘ø
 
 struct keyStore {
@@ -39,18 +42,22 @@ public:
 	Differential();
 	~Differential();
 	unsigned long Diff_setKey;
+	struct keyArgueDif
+	{
+		int num;
+		unsigned short thisplaintext, thiscrytext;
+		unsigned short thisplaintext2, thiscrytext2;
+		char maxKey[8];
+		bool  state;
+		int start, end;
+		unsigned long key[5];
+	}threadArgue[THREAD_NUM];
 	void analyse();
 private:
 	int textNum;
-	int num;
 	inline void sboxDecrypt_4(char *input);
 	bool hex();
 	char maxKey[8];
 	bool bigRun();
-	struct keyStore *An_key;
-/*	struct keyArgue
-	{
-		struct keyStore *key;
-	}threadArgue[16];
-	static void bigRunThread(LPVOID argu);*/
+	static void bigRunThread(LPVOID argu);
 };
