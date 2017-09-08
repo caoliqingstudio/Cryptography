@@ -84,7 +84,8 @@ void MySPN::setKey(char * key)
 void MySPN::setKey(unsigned long key)
 {
 	threadArgu.inputKey = key;
-	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)roundKeyCreat, (LPVOID)&threadArgu, 0, NULL);
+//	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)roundKeyCreat, (LPVOID)&threadArgu, 0, NULL);
+	roundKeyCreat((LPVOID)&threadArgu);
 }
 
 void MySPN::setKeyDecrypt(char * key)
@@ -105,6 +106,13 @@ void MySPN::setKeyDecrypt(unsigned long key)
 		key /= 2;
 	}
 	setKeyDecrypt(keyChar);
+}
+
+void MySPN::clearKey()
+{
+	for (int i = 0; i < 5; ++i) {
+		threadArgu.roundKey[i].state = false;
+	}
 }
 
 unsigned short MySPN::encrypt16(unsigned short plaintext_s)
@@ -145,19 +153,18 @@ bool MySPN::encryptFile(char * filename, char *newfilename)
 		std::cout << newfilename << "创建失败" << std::endl;
 		return false;
 	}
+	char c1[2];
+	c1[0] = fgetc(file);
 	while (!feof(file)) {
-		char c1[2];
-		c1[0]=fgetc(file);
-		if (!feof(file)) {
-			c1[1] = fgetc(file);
-		}
-		else {
+		c1[1]=fgetc(file);
+		if (feof(file)){
 			c1[1] = 0;
 		}
 		unsigned short y = encrypt16((unsigned short)*((unsigned short *)c1));
 		char * out = (char *)&y;
 		fputc(out[0],aimfile);
 		fputc(out[1], aimfile);
+		c1[0] = fgetc(file);
 	}
 	fclose(file);
 	fclose(aimfile);
@@ -253,15 +260,15 @@ unsigned char* MySPN::encrypt16_hex(unsigned char * plaintext_c)
 	crytext[3] = plaintext_c[3];
 	for (int i = 0; i < 3; i++)
 	{
-		while (threadArgu.roundKey[i].state == false);
+//		while (threadArgu.roundKey[i].state == false);
 		xor16(threadArgu.roundKey[i].keyChar, crytext);
 		sbox16(crytext);
 		pbox16(crytext);
 	}
-	while (threadArgu.roundKey[3].state == false);
+//	while (threadArgu.roundKey[3].state == false);
 	xor16(threadArgu.roundKey[3].keyChar, crytext);
 	sbox16(crytext);
-	while (threadArgu.roundKey[4].state == false);
+//	while (threadArgu.roundKey[4].state == false);
 	xor16(threadArgu.roundKey[4].keyChar, crytext);
 	return crytext;
 }
@@ -278,13 +285,11 @@ bool MySPN::decryptFile(char * filename, char *newfilename)
 		std::cout << newfilename << "创建失败" << std::endl;
 		return false;
 	}
+	char c1[2];
+	c1[0] = fgetc(file);
 	while (!feof(file)) {
-		char c1[2];
-		c1[0] = fgetc(file);
-		if (!feof(file)) {
-			c1[1] = fgetc(file);
-		}
-		else {
+		c1[1] = fgetc(file);
+		if (feof(file)){
 			c1[1] = 0;
 		}
 		unsigned short y;
@@ -292,6 +297,7 @@ bool MySPN::decryptFile(char * filename, char *newfilename)
 		char * out = (char *)&y;
 		fputc(out[0], aimfile);
 		fputc(out[1], aimfile);
+		c1[0] = fgetc(file);
 	}
 	fclose(file);
 	fclose(aimfile);

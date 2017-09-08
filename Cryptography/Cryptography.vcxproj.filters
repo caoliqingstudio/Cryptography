@@ -39,6 +39,12 @@
     <ClInclude Include="MySPNPlus.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="communicate.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RainbowTable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -57,6 +63,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MySPNPlus.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="communicate.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RainbowTable.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

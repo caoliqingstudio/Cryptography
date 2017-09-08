@@ -19,11 +19,21 @@ public:
 	 MyRSA();
 	~ MyRSA();
 	void CreateKey();
+	void CreatePPkey();
 	void ClearKey();
 	void printKey();
-
+	void encrypt_ModS2(mpz_t &plaintext, mpz_t &crytext);//模重复平方
+	void encrypt_Montgomery(mpz_t &plaintext, mpz_t &crytext);//蒙哥马利
+	void encrypt_China(mpz_t &plaintext, mpz_t &crytext);//中国剩余定理
+	void decrypt_ModS2(mpz_t &plaintext, mpz_t &crytext);//模重复平方
+	void decrypt_Montgomery(mpz_t &plaintext, mpz_t &crytext);//蒙哥马利
+	void decrypt_China(mpz_t &plaintext, mpz_t &crytext);//中国剩余定理
+	mpz_t  n, pub, pri;
+	mpz_t p, q;
 private:
-	mpz_t p, q, n, pub, pri;
+	void SquareMultiply(mpz_t &result, mpz_t & text, mpz_t &pub, mpz_t &mod);//模平方
+	void Montgomery(mpz_t &result, mpz_t & text, mpz_t &pub, mpz_t &mod);//蒙哥马利
+	void China(mpz_t &result, mpz_t text, mpz_t pub,mpz_t p,mpz_t q, mpz_t mod);//中国剩余定理
 	bool ok;
 	gmp_randstate_t state;
 	struct arguement {

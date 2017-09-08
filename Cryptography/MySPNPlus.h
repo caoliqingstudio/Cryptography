@@ -13,5 +13,5 @@ public:
 	unsigned short decrypt(unsigned short crytext);
 	bool decryptFile(char *filename, char *newfilename);
 private:
-	MySPN myspn;
+	MySPN myspn1,myspn2,myspn3;
 };

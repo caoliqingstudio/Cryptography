@@ -20,11 +20,6 @@ MyRSA::~MyRSA()
 
 void MyRSA::CreateKey()
 {
-	mpz_t psub, qsub;
-	mpz_init(psub);
-	mpz_init(qsub);
-	mpz_t euler;
-	mpz_init(euler);
 	time_t seed;
 	time(&seed);
 	gmp_randseed_ui(state,unsigned long(seed));
@@ -32,18 +27,28 @@ void MyRSA::CreateKey()
 	//随机数 得到 p  q
 	argue.p = &p;
 	CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)bigPrime, (LPVOID)&argue, 0, NULL);
-	/*do {
-		mpz_rrandomb(p, state, 1024);
-		mpz_setbit(p, 0);//设置为奇数
-	} while (isNotPrime(p));*/
 	do {
 		mpz_rrandomb(q, state, 1024);
 		mpz_setbit(q, 0);	//设置为奇数
 	} while (isNotPrime(q));
 	while (!ok);
+
+//	mpz_set_ui(p, 47);
+//	mpz_set_ui(q, 71);
+//	mpz_set_ui(pub, 79);
 	//得到 n
 	mpz_mul(n, p, q);
-	//求p-1，q-1 求欧拉数euler
+	CreatePPkey();
+}
+
+void MyRSA::CreatePPkey()
+{
+	mpz_t psub, qsub;
+	mpz_init(psub);
+	mpz_init(qsub);
+	mpz_t euler;
+	mpz_init(euler);
+	//欧拉数
 	mpz_sub_ui(psub, p, 1);
 	mpz_sub_ui(qsub, q, 1);
 	mpz_mul(euler, psub, qsub);
@@ -55,7 +60,6 @@ void MyRSA::CreateKey()
 		} while (!relaPrime(pub, psub, qsub, true));
 	} while (!priCreat(pub, euler)); //如果 公约数非 1 则不互素
 	mpz_fdiv_r(pri, pri, euler);
-	//释放内存
 	mpz_clears(psub, qsub, euler, NULL);
 }
 
@@ -73,6 +77,114 @@ void MyRSA::printKey()
 	gmp_printf(" %Zd \n", pub);
 	printf("私钥= :");
 	gmp_printf(" %Zd \n", pri);
+}
+
+void MyRSA::encrypt_ModS2(mpz_t & plaintext, mpz_t & crytext)
+{
+	//mpz_powm(crytext, plaintext, pub, n);
+	SquareMultiply(crytext, plaintext, pub, n);
+}
+
+void MyRSA::encrypt_Montgomery(mpz_t & plaintext, mpz_t & crytext)
+{
+	Montgomery(crytext, plaintext, pub, n);
+}
+
+void MyRSA::encrypt_China(mpz_t & plaintext, mpz_t & crytext)
+{
+	China(crytext, plaintext, pub, p, q, n);
+}
+
+void MyRSA::decrypt_ModS2(mpz_t & plaintext, mpz_t & crytext)
+{
+//	mpz_powm(plaintext, crytext, pri, n);
+	SquareMultiply(plaintext, crytext, pri, n);
+}
+
+void MyRSA::decrypt_Montgomery(mpz_t & plaintext, mpz_t & crytext)
+{
+	Montgomery(plaintext, crytext, pri, n);
+}
+
+void MyRSA::decrypt_China(mpz_t & plaintext, mpz_t & crytext)
+{
+	China(plaintext, crytext, pri, p, q, n);
+}
+
+void MyRSA::SquareMultiply(mpz_t & result, mpz_t & text,mpz_t &pub, mpz_t & mod)
+{
+	mpz_set_ui(result, 1);
+	int length;
+	length = mpz_popcount(pub);
+//	printf("%d\n", length);
+	int j = 0;
+	for (int i = 0; i < length; ++i)
+	{
+		while (!mpz_tstbit(pub, j++));
+	}
+	for (j--; j >= 0; --j)
+	{
+		while (!mpz_tstbit(pub, j)) {
+			--j;
+			mpz_powm_ui(result, result, 2, mod);
+			if (j < 0) return;
+		}
+		mpz_powm_ui(result, result, 2, mod);
+		mpz_mul(result, result, text);
+		mpz_mod(result, result, mod);
+	}
+	return;
+}
+
+void MyRSA::Montgomery(mpz_t & result, mpz_t & text, mpz_t & pub, mpz_t & mod)
+{
+	mpz_t key,r;
+	mpz_init(r);
+	mpz_set_ui(result, 1);
+	mpz_init_set(key, pub);
+	mpz_mod(r, text, mod);
+	while(mpz_cmp_ui(key,1)>0)
+	{
+		if (mpz_odd_p(key)) {
+			mpz_mul(result, result, r);
+			mpz_mod(result, result, mod);
+		}
+		mpz_powm_ui(r, r, 2, mod);
+		mpz_div_ui(key, key, 2);
+	}
+	mpz_mul(result, result, r);
+	mpz_mod(result, result, mod);
+	mpz_clears(key, r, NULL);
+	return;
+}
+
+void MyRSA::China(mpz_t &result, mpz_t text, mpz_t pub, mpz_t p, mpz_t q, mpz_t mod)
+{
+	mpz_t xp, xq, dp, dq, yp, yq, psub, qsub;
+	mpz_inits(xp, xq, dp, dq, yp, yq, psub, qsub, NULL);
+
+	mpz_mod(xp, text, p);
+	mpz_mod(xq, text, q);//xp== x mod p
+
+	mpz_sub_ui(psub, p, 1);
+	mpz_sub_ui(qsub, q, 1);
+	mpz_mod(dp, pub, psub);
+	mpz_mod(dq, pub, qsub);// dp = pub  mod  p-1
+
+	mpz_powm(yp, xp, dp, p);
+	mpz_powm(yq, xq, dq, q);// yp = xp ^ dp mod p
+	
+	mpz_invert(xq, q, p);
+	mpz_invert(xp, p, q);// xq = q ^ -1 mod p
+
+	mpz_mul(xq, xq, q);
+	mpz_mul(xq, xq, yp);// xq = xq * q * yp
+	mpz_mul(xp, xp, p);
+	mpz_mul(xp, xp, yq);
+
+	mpz_add(result, xp, xq);
+	mpz_mod(result, result, n);
+	mpz_clears(xp, xq, dp, dq, yp, yq, psub, qsub, NULL);
 }
 
 // 采用 Miller-Rabin 算法
@@ -110,7 +222,7 @@ bool MyRSA::relaPrime(mpz_t& a, mpz_t& b,mpz_t& c, bool state)
 	mpz_t result;
 	mpz_init(result);
 	mpz_gcd(result , a, b);
-	if (mpz_cmp_ui(result,1) == 0) {
+	if (mpz_cmp_ui(result,1) != 0) {
 		mpz_clear(result);
 		return false;
 	}
@@ -154,7 +266,7 @@ bool MyRSA::priCreat(mpz_t & a, mpz_t & b)
 		mpz_mul(temp, q, b0);
 		mpz_sub(r, a0, temp);
 	}
-	if (!mpz_cmp_ui(r, 1)) {
+	if (mpz_cmp_ui(b0, 1)) {
 		mpz_clears(a0, b0, t0, t, temp, s0, s, q, r, temp2, NULL);
 		return false;
 	}

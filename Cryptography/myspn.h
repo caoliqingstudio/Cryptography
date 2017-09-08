@@ -36,6 +36,7 @@ public:
 	void setKey(unsigned long key);
 	void setKeyDecrypt(char * key);//32位char 数组
 	void setKeyDecrypt(unsigned long key);
+	void clearKey();
 	unsigned short encrypt16(unsigned short plaintext_s);
 	unsigned char* encrypt16(unsigned char * plaintext_c);
 	bool encryptFile(char *filename, char *newfilename);
@@ -47,25 +48,7 @@ public:
 	char * encrypt16_01(char *plaintext_01); //分析专用，01比特输入字符串
 	unsigned short decrypt16(unsigned short crypttext_s, unsigned short &plaintext_s);
 	unsigned short decrypt16(char *crypttext, char *plaintext);
-
-private:
-	char crytext_01[17]; //分析专用，01比特字符串
-	unsigned char * encrypt16_hex(unsigned char * plaintext_c);
-	static void roundKeyCreat(LPVOID argu);//轮密钥生成，此处打算另开一个线程运行
-	static void roundKeyCreatDecrypt(LPVOID argu);//轮密钥生成，，，，
-	inline char c2hc(char temp) {
-		return (temp >= '0'&&temp <= '9') ? temp - '0' :
-			(temp >= 'A'&&temp <= 'F') ? temp - 'A' + 10 : temp - 'a' + 10;
-	}
-	inline void xorDecrypt(char *a, char *key) {
-		for (int i = 0; i < 16; i++)
-		{
-			a[i] = a[i] ^ key[i];
-		}
-	}
-	inline void sboxDecrypt(char *input);
-	inline void pboxDecrypt(char *input);
-	char sboxDecrypt_c[16][4];
+	//以下本来隐藏了
 	struct argumKey {
 		unsigned long inputKey;
 		struct storeKey
@@ -82,6 +65,26 @@ private:
 			char keyChar[16];
 		}roundKey[5];//轮密钥 新结构
 	}threadArguDecrypt;
+	static void roundKeyCreat(LPVOID argu);//轮密钥生成，此处打算另开一个线程运行
+protected:
+	char sboxDecrypt_c[16][4];
+private:
+	static void roundKeyCreatDecrypt(LPVOID argu);//轮密钥生成，，，，
+	char crytext_01[17]; //分析专用，01比特字符串
+	unsigned char * encrypt16_hex(unsigned char * plaintext_c);
+	inline char c2hc(char temp) {
+		return (temp >= '0'&&temp <= '9') ? temp - '0' :
+			(temp >= 'A'&&temp <= 'F') ? temp - 'A' + 10 : temp - 'a' + 10;
+	}
+	inline void xorDecrypt(char *a, char *key) {
+		for (int i = 0; i < 16; i++)
+		{
+			a[i] = a[i] ^ key[i];
+		}
+	}
+	inline void sboxDecrypt(char *input);
+	inline void pboxDecrypt(char *input);
+
 	inline void xor16(unsigned char *key,unsigned char *text) {
 		text[0] = text[0] ^ key[0];
 		text[1] = text[1] ^ key[1];
