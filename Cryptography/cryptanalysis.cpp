@@ -262,8 +262,8 @@ void Differential::analyse()
 	std::cout << "8位密钥时间" << end - start << std::endl;
 	start = clock();
 	bigRun();
-	while (!threadArgue[THREAD_NUM-1].state);
-	end = clock();
+	while (!threadArgue[THREAD_NUM-1].state)
+		end = clock();
 	std::cout << "暴力时间" << end - start << std::endl;
 
 	int num = 0;

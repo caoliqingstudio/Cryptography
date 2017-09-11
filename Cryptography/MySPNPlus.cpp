@@ -51,6 +51,7 @@ bool MySPNPlus::encryptFile(char * filename, char * newfilename)
 		std::cout << newfilename << "´´½¨Ê§°Ü" << std::endl;
 		return false;
 	}
+	unsigned short temp = 0xbcdf;
 	char c1[2];
 	c1[0] = fgetc(file);
 	while (!feof(file)) {
@@ -58,8 +59,9 @@ bool MySPNPlus::encryptFile(char * filename, char * newfilename)
 		if (feof(file)) {
 			c1[1] = 0;
 		}
-		unsigned short y = encrypt((unsigned short)*((unsigned short *)c1));
+		unsigned short y = encrypt(((unsigned short)*((unsigned short *)c1))^temp);
 		char * out = (char *)&y;
+		temp = y;
 		fputc(out[0], aimfile);
 		fputc(out[1], aimfile);
 		c1[0] = fgetc(file);
@@ -91,6 +93,7 @@ bool MySPNPlus::decryptFile(char * filename, char * newfilename)
 	}
 	//int i = 0;
 	char c1[2];
+	unsigned short temp = 0xbcdf;
 	c1[0] = fgetc(file);
 	while (!feof(file)) {
 		//i++;
@@ -100,6 +103,8 @@ bool MySPNPlus::decryptFile(char * filename, char * newfilename)
 		}
 		unsigned short y;
 		y = decrypt((unsigned short)*((unsigned short *)c1));
+		y = y^temp;
+		temp = (unsigned short)*((unsigned short *)c1);
 		char * out = (char *)&y;
 		fputc(out[0], aimfile);
 		fputc(out[1], aimfile);

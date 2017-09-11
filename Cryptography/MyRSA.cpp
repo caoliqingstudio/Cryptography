@@ -183,7 +183,7 @@ void MyRSA::China(mpz_t &result, mpz_t text, mpz_t pub, mpz_t p, mpz_t q, mpz_t 
 	mpz_mul(xp, xp, yq);
 
 	mpz_add(result, xp, xq);
-	mpz_mod(result, result, n);
+	mpz_mod(result, result, mod);
 	mpz_clears(xp, xq, dp, dq, yp, yq, psub, qsub, NULL);
 }
 

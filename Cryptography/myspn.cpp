@@ -154,13 +154,15 @@ bool MySPN::encryptFile(char * filename, char *newfilename)
 		return false;
 	}
 	char c1[2];
+	unsigned short temp = 0xbcdf;
 	c1[0] = fgetc(file);
 	while (!feof(file)) {
 		c1[1]=fgetc(file);
 		if (feof(file)){
 			c1[1] = 0;
 		}
-		unsigned short y = encrypt16((unsigned short)*((unsigned short *)c1));
+		unsigned short y = encrypt16(((unsigned short)*((unsigned short *)c1))^temp);
+		temp = y;
 		char * out = (char *)&y;
 		fputc(out[0],aimfile);
 		fputc(out[1], aimfile);
@@ -286,6 +288,7 @@ bool MySPN::decryptFile(char * filename, char *newfilename)
 		return false;
 	}
 	char c1[2];
+	unsigned short temp = 0xbcdf;
 	c1[0] = fgetc(file);
 	while (!feof(file)) {
 		c1[1] = fgetc(file);
@@ -294,6 +297,8 @@ bool MySPN::decryptFile(char * filename, char *newfilename)
 		}
 		unsigned short y;
 		decrypt16((unsigned short)*((unsigned short *)c1),y);
+		y = y^temp;
+		temp = *(unsigned short *)c1;
 		char * out = (char *)&y;
 		fputc(out[0], aimfile);
 		fputc(out[1], aimfile);

@@ -11,9 +11,26 @@
 time_t start, end;
 
 int main() {
+	char *x;
+	x = ntlm_hash_lm_password("123");
+
+	for (int i = 0; i<16; i++)
+		printf("%02x", (unsigned char)x[i]);
+	std::cout << std::endl;
+	return 0;
+}
+
+//差分分析
+int test_diff() {
 	Differential test;
+	system("cls");
+	std::cout << "接下来 是差分分析测试\n" << "预设密钥是0xab851257" << std::endl;
+	start = clock();
 	test.analyse();
+	end = clock();
+	std::cout << "总计用时  " << end - start << std::endl;
 	system("pause");
+	return 0;
 }
 
 //通信
@@ -27,11 +44,11 @@ int test_communicate() {
 	start = clock();
 	test.encrypt(file1, file2);
 	end = clock();
-	printf("%s 文件加密得到 %s\t用时 %t\n", file1, file2, end - start);
+	printf("%s 文件加密得到 %s\t用时 %lld\n", file1, file2, end - start);
 	start = clock();
 	test.decrypt(file2, file3);
 	end = clock();
-	printf("%s 文件解密得到 %s\t用时 %t\n", file2, file3, end - start);
+	printf("%s 文件解密得到 %s\t用时 %lld\n", file2, file3, end - start);
 	system("pause");
 	return 0;
 }
@@ -52,7 +69,7 @@ int test_RSA() {
 	myrsa.CreateKey();
 	end = clock();
 	myrsa.printKey();
-	printf("\n用时 %t\n", end - start);
+	std::cout<<"\n用时 "<< end - start<<std::endl;
 	printf("100次加密数据");
 	gmp_printf("%Zd\n", pub);
 
