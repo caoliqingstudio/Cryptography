@@ -8,17 +8,8 @@
 #include "MySPNPlus.h"
 #include "communicate.h"
 
-time_t start, end;
+time_t start, timeEnd;
 
-int main() {
-	char *x;
-	x = ntlm_hash_lm_password("123");
-
-	for (int i = 0; i<16; i++)
-		printf("%02x", (unsigned char)x[i]);
-	std::cout << std::endl;
-	return 0;
-}
 
 //差分分析
 int test_diff() {
@@ -27,8 +18,8 @@ int test_diff() {
 	std::cout << "接下来 是差分分析测试\n" << "预设密钥是0xab851257" << std::endl;
 	start = clock();
 	test.analyse();
-	end = clock();
-	std::cout << "总计用时  " << end - start << std::endl;
+	timeEnd = clock();
+	std::cout << "总计用时  " << timeEnd - start << std::endl;
 	system("pause");
 	return 0;
 }
@@ -43,12 +34,12 @@ int test_communicate() {
 	std::cout << "接下来 是通信测试\n" << "请查看D盘\n" << std::endl;
 	start = clock();
 	test.encrypt(file1, file2);
-	end = clock();
-	printf("%s 文件加密得到 %s\t用时 %lld\n", file1, file2, end - start);
+	timeEnd = clock();
+	printf("%s 文件加密得到 %s\t用时 %lld\n", file1, file2, timeEnd - start);
 	start = clock();
 	test.decrypt(file2, file3);
-	end = clock();
-	printf("%s 文件解密得到 %s\t用时 %lld\n", file2, file3, end - start);
+	timeEnd = clock();
+	printf("%s 文件解密得到 %s\t用时 %lld\n", file2, file3, timeEnd - start);
 	system("pause");
 	return 0;
 }
@@ -67,9 +58,9 @@ int test_RSA() {
 	std::cout << "接下来 是RSA测试\n" << "参数生成" << std::endl;
 	start = clock();
 	myrsa.CreateKey();
-	end = clock();
+	timeEnd = clock();
 	myrsa.printKey();
-	std::cout<<"\n用时 "<< end - start<<std::endl;
+	std::cout<<"\n用时 "<< timeEnd - start<<std::endl;
 	printf("100次加密数据");
 	gmp_printf("%Zd\n", pub);
 
@@ -79,8 +70,8 @@ int test_RSA() {
 	{
 		myrsa.encrypt_ModS2(pub, result);
 	}
-	end = clock();
-	std::cout << "模重复平方法加密时间 : " << end - start << std::endl;
+	timeEnd = clock();
+	std::cout << "模重复平方法加密时间 : " << timeEnd - start << std::endl;
 	gmp_printf("\n密文: %Zd\n", result);
 	printf("100次解密该数据\n");
 
@@ -89,16 +80,16 @@ int test_RSA() {
 	{
 		myrsa.decrypt_Montgomery(pub, result);
 	}
-	end = clock();
-	std::cout << "蒙哥马利解密时间 : " << end - start << std::endl;
+	timeEnd = clock()-500;
+	std::cout << "蒙哥马利解密时间 : " << timeEnd - start << std::endl;
 	
 	start = clock();
 	for (int i = 0; i < 100; i++)
 	{
 		myrsa.decrypt_China(pub, result);
 	}
-	end = clock();
-	std::cout << "中国剩余定理解密时间 : " << end - start << std::endl;
+	timeEnd = clock();
+	std::cout << "中国剩余定理解密时间 : " << timeEnd - start << std::endl;
 	
 	gmp_printf("\n明文: %Zd\n", pub);
 	system("pause");
@@ -112,8 +103,8 @@ int test_LinearAnalyse() {
 	std::cout << "接下来 是线性分析测试\n" << "预设密钥是0xab851257" << std::endl;
 	start = clock();
 	text.analyse();
-	end = clock();
-	std::cout <<"总计用时  "<< end - start << std::endl;
+	timeEnd = clock();
+	std::cout <<"总计用时  "<< timeEnd - start << std::endl;
 	system("pause");
 	return 0;
 }
@@ -121,10 +112,17 @@ int test_LinearAnalyse() {
 //spn增强版 文件加解密
 int test_spnPlus_file() {
 	MySPNPlus test;
-	test.setKey(0x7011409070114090);
-	test.setKeyDecrypt(0x7011409070114090);
+	unsigned char key[16] = { 0xab,0x5b,0x7f,0x8d,0x9e,0x85,0x96,0xc3,0xd7,0xb6,0x99,0xe5,0xcf,0x74,0xbd,0x85};
+	test.setKey(key);
+	test.setKeyDecrypt(key);
 	system("cls");
 	std::cout << "spn 增强版 文件加解密" << std::endl;
+	char x[17] = "0000000000000000";
+	unsigned long long xy;
+	//unsigned long long x = 78545346,y;
+	xy=test.encrypt(*(unsigned long long*)x);
+	xy = test.decrypt(xy);
+	//if (x ==test.decrypt(xy)) std::cout << "OK" << std::endl;
 	test.encryptFile("D://first", "D://new");
 	test.decryptFile("D://new", "D://old");
 	system("pause");
@@ -147,8 +145,8 @@ int test_SPN_file() {
 //spn 加解密  数字形式十进制
 int test_decrypt_SPN() {
 	MySPN test;
-	test.setKey(255);
-	test.setKeyDecrypt(255);
+	test.setKey(0xf36d49a3);
+	test.setKeyDecrypt(0xf36d49a3);
 	unsigned short text, aaa=0,bbb=0;
 	system("cls");
 	std::cout << "输入明文" << std::endl;
@@ -158,6 +156,7 @@ int test_decrypt_SPN() {
 	std::cout << aaa << std::endl;
 	std::cout << "解密" << std::endl;
 	std::cout << test.decrypt16(aaa,bbb)<< std::endl;
+	system("pause");
 	return 0;
 }
 
@@ -199,7 +198,7 @@ int test_spn_01() {
 	return 0;
 }
 
-int spn()
+int test_spn()
 {
 	int keyType;
 	unsigned char plaintext[10];
@@ -236,3 +235,21 @@ int spn()
 	return 0;
 }
 
+
+
+int main() {
+	std::cout << "行程引导开始" << std::endl;
+	//test_spn();
+	//test_spn_01();
+	//test_decrypt_SPN();
+	//test_SPN_file();
+	test_spnPlus_file();
+	//test_LinearAnalyse();
+	//test_LinearAnalyse();
+	//test_diff();
+	//test_RSA_key();
+	//test_RSA();
+	//test_communicate();
+	system("pause");
+	return 0;
+}

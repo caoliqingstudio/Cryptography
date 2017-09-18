@@ -397,7 +397,7 @@ void Differential::bigRunThread(LPVOID argu)
 	key[3] = ((argument->maxKey[7] << 4) & 0xf0);
 
 	MySPN myspn;
-	for (unsigned int i = argument->start; i <= argument->end; ++i) {
+	for ( int i = argument->start; i <= argument->end; ++i) {
 		//printf("%x\n", i);
 		char c = *(((unsigned char *)&i) + 2);
 		*((unsigned short *)key) = *((unsigned short *)&i);
