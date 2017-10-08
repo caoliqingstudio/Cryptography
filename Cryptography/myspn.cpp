@@ -198,14 +198,14 @@ char * MySPN::encrypt16_01(char * plaintext_01)
 	encrypt16_hex(plaintext);
 	for (int i = 0; i < 4; i++)
 	{
-		crytext_01[i * 4 + 0] = ((crytext[i] & 0x01) != 0 ? 1 : 0);
+/*		crytext_01[i * 4 + 0] = ((crytext[i] & 0x01) != 0 ? 1 : 0);
 		crytext_01[i * 4 + 1] = ((crytext[i] & 0x02) != 0 ? 1 : 0);
 		crytext_01[i * 4 + 2] = ((crytext[i] & 0x04) != 0 ? 1 : 0);
-		crytext_01[i * 4 + 3] = ((crytext[i] & 0x08) != 0 ? 1 : 0);
-/*		crytext_01[i * 4 + 0] = ((crytext[i] & 0x01) != 0 ? '1' : '0');//方便看，所以弄成字符
+		crytext_01[i * 4 + 3] = ((crytext[i] & 0x08) != 0 ? 1 : 0);*/
+		crytext_01[i * 4 + 0] = ((crytext[i] & 0x01) != 0 ? '1' : '0');//方便看，所以弄成字符
 		crytext_01[i * 4 + 1] = ((crytext[i] & 0x02) != 0 ? '1' : '0');
 		crytext_01[i * 4 + 2] = ((crytext[i] & 0x04) != 0 ? '1' : '0');
-		crytext_01[i * 4 + 3] = ((crytext[i] & 0x08) != 0 ? '1' : '0');*/
+		crytext_01[i * 4 + 3] = ((crytext[i] & 0x08) != 0 ? '1' : '0');
 	}
 	crytext_01[16] = '\0';
 	return crytext_01;

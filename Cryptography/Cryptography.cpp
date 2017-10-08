@@ -49,7 +49,7 @@ int test_RSA() {
 	mpz_t pub,result;
 	mpz_init(result);
 	mpz_init(pub);
-	mpz_set_ui(pub,0x454624);
+	mpz_set_ui(pub,0x454625);
 	//mpz_t thistext;
 	//mpz_init_set(thistext, text);
 	//mpz_set_ui(result, 1);
@@ -80,9 +80,10 @@ int test_RSA() {
 	{
 		myrsa.decrypt_Montgomery(pub, result);
 	}
-	timeEnd = clock()-500;
+	timeEnd = clock();
 	std::cout << "蒙哥马利解密时间 : " << timeEnd - start << std::endl;
-	
+
+
 	start = clock();
 	for (int i = 0; i < 100; i++)
 	{
@@ -114,17 +115,17 @@ int test_spnPlus_file() {
 	MySPNPlus test;
 	unsigned char key[16] = { 0xab,0x5b,0x7f,0x8d,0x9e,0x85,0x96,0xc3,0xd7,0xb6,0x99,0xe5,0xcf,0x74,0xbd,0x85};
 	test.setKey(key);
-	test.setKeyDecrypt(key);
+	//test.setKeyDecrypt(key);
 	system("cls");
 	std::cout << "spn 增强版 文件加解密" << std::endl;
-	char x[17] = "0000000000000000";
+//	char x[17] = "0000000000000000";
 	unsigned long long xy;
 	//unsigned long long x = 78545346,y;
-	xy=test.encrypt(*(unsigned long long*)x);
-	xy = test.decrypt(xy);
+//	xy=test.encrypt(*(unsigned long long*)x);
+//	xy = test.decrypt(xy);
 	//if (x ==test.decrypt(xy)) std::cout << "OK" << std::endl;
 	test.encryptFile("D://first", "D://new");
-	test.decryptFile("D://new", "D://old");
+	//test.decryptFile("D://new", "D://old");
 	system("pause");
 	return 0;
 }
@@ -195,6 +196,7 @@ int test_spn_01() {
 	}
 	std::cout << "密文" << std::endl;
 	std::cout << test.encrypt16_01(input) << std::endl;
+	system("pause");
 	return 0;
 }
 
@@ -239,12 +241,12 @@ int test_spn()
 
 int main() {
 	std::cout << "行程引导开始" << std::endl;
+	system("pause");
 	//test_spn();
 	//test_spn_01();
 	//test_decrypt_SPN();
 	//test_SPN_file();
-	test_spnPlus_file();
-	//test_LinearAnalyse();
+	//test_spnPlus_file();
 	//test_LinearAnalyse();
 	//test_diff();
 	//test_RSA_key();

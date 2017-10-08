@@ -96,13 +96,14 @@ void MySPNPlus::setKey(unsigned char * key)
 	}
 	for (int i = 0; i < 17; ++i)
 	{
-		char tempthis[8];
-		for (int j = 0; j<16; ++j)
+		char tempthis[16];
+		for (int j = 0; j<8; ++j)
 		{
 			tempthis[j] = temp[i + j*2] | ((temp[i+j*2+1] << 4) & 0xf0);
 		}
 		roundkey[i] = *(unsigned long long *)tempthis;
 	}
+	return;
 	/*
 	unsigned long key1, key2, key3, key4, key5, key6;
 	key1 = (unsigned long)*((unsigned long *)(key));
@@ -129,7 +130,7 @@ void MySPNPlus::setKeyDecrypt(unsigned char * key)
 	for (int i = 0; i < 17; ++i)
 	{
 		char tempthis[8];
-		for (int j = 0; j<16; ++j)
+		for (int j = 0; j<8; ++j)
 		{
 			tempthis[j] = temp[i + j * 2] | ((temp[i + j * 2 + 1] << 4) & 0xf0);
 		}
